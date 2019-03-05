@@ -6,6 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -14,10 +17,6 @@ public class Main extends Application {
     public static final int HEIGHT = 600;
 
     private Scene mainScene;
-
-    private MenuBar menuBar;
-
-    private Menu file;
 
     public static void main(String[] args) {
         launch(args);
@@ -28,18 +27,9 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("../resources/configuration.fxml"));
         mainScene = new Scene(root, WIDTH, HEIGHT);
 
-        makeMenus();
-
         primaryStage.setTitle("Drawing application");
         primaryStage.setScene(mainScene);
         primaryStage.show();
     }
 
-    private void makeMenus() {
-        menuBar = new MenuBar();
-
-        file = new Menu();
-
-        menuBar.getMenus().addAll(file);
-    }
 }
