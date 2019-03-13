@@ -6,12 +6,15 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+
+import java.util.function.DoubleBinaryOperator;
 
 public class Main extends Application {
 
@@ -104,8 +107,12 @@ public class Main extends Application {
 
             switch (shape) {
                 case "Circle":
+                    circle.setCenterX(event.getX());
+                    circle.setCenterY(event.getY());
                     break;
                 case "Rectangle":
+                    rectangle.setX(event.getX());
+                    rectangle.setY(event.getY());
                     break;
                 case "Line":
                     line.setStartX(event.getX());
@@ -122,19 +129,17 @@ public class Main extends Application {
             ToggleButton selectedButton = ((ToggleButton) shapesToggle.getSelectedToggle());
             String shape = selectedButton != null ? selectedButton.getText() : "";
 
+            GraphicsContext graphicsContext = mainCanvas.getGraphicsContext2D();
+
             switch (shape) {
                 case "Circle":
+                    drawCircle(graphicsContext, event);
                     break;
                 case "Rectangle":
+                    drawRectangle(graphicsContext, event);
                     break;
                 case "Line":
-                    line.setEndX(event.getX());
-                    line.setEndY(event.getY());
-
-                    GraphicsContext graphicsContext = mainCanvas.getGraphicsContext2D();
-                    graphicsContext.setStroke(colorPicker.getValue());
-
-                    graphicsContext.strokeLine(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());
+                    drawLine(graphicsContext, event);
                     break;
                 case "Point":
                     break;
@@ -144,6 +149,55 @@ public class Main extends Application {
         });
 
         pane.setRight(mainCanvas);
+    }
+
+    private void drawLine(GraphicsContext graphicsContext, MouseEvent event) {
+        line.setEndX(event.getX());
+        line.setEndY(event.getY());
+
+        graphicsContext.setStroke(colorPicker.getValue());
+        graphicsContext.strokeLine(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());
+    }
+
+    private void drawRectangle(GraphicsContext graphicsContext, MouseEvent event) {
+        double width = Math.abs(rectangle.getX() - event.getX());
+        double height = Math.abs(rectangle.getY() - event.getY());
+
+        graphicsContext.setFill(colorPicker.getValue());
+
+        if (rectangle.getX() > event.getX()) {
+            if (rectangle.getY() > event.getY()) {
+                graphicsContext.fillRect(event.getX(), event.getY(), width, height);
+            } else {
+                graphicsContext.fillRect(event.getX(), event.getY() - height, width, height);
+            }
+        } else {
+            if (rectangle.getY() > event.getY()) {
+                graphicsContext.fillRect(event.getX() - width, event.getY(), width, height);
+            } else {
+                graphicsContext.fillRect(rectangle.getX(), rectangle.getY(), width, height);
+            }
+        }
+    }
+
+    private void drawCircle(GraphicsContext graphicsContext, MouseEvent event) {
+        graphicsContext.setFill(colorPicker.getValue());
+
+        double diameter = Math.abs(circle.getCenterY() - event.getY());
+
+        if (circle.getCenterX() > event.getX()) {
+            if (circle.getCenterY() > event.getY()) {
+                graphicsContext.fillOval(event.getX(), event.getY(), diameter, diameter);
+            } else {
+                graphicsContext.fillOval(event.getX(), event.getY() - diameter, diameter, diameter);
+            }
+        } else {
+            if (circle.getCenterY() > event.getY()) {
+                graphicsContext.fillOval(event.getX() - diameter, event.getY(), diameter, diameter);
+            } else {
+                graphicsContext.fillOval(circle.getCenterX(), circle.getCenterY(), diameter, diameter);
+            }
+        }
     }
 
     private void setupShapesMenu() {
@@ -205,6 +259,7 @@ public class Main extends Application {
     private void setupColorsMenu() {
         colorPicker = new ColorPicker();
         colorPicker.setPrefSize(200, 30);
+        colorPicker.setValue(Color.BLACK);
         colorPicker.setDisable(true);
 
         controls.getChildren().add(colorPicker);
