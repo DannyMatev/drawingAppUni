@@ -9,24 +9,29 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ToggleGroup?>
 
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="596.0" prefWidth="962.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+
+<BorderPane fx:controller="main.controller.Controller" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="596.0" prefWidth="962.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <fx:define>
+       <ToggleGroup fx:id="shapesToggleGroup" />
+   </fx:define>
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-              <MenuItem id="newFileButton" mnemonicParsing="false" text="New File" />
-                  <MenuItem id="openFileButton" mnemonicParsing="false" text="Open File" />
-                  <MenuItem id="saveButton" mnemonicParsing="false" text="Save" />
-                  <MenuItem id="saveAsButton" mnemonicParsing="false" text="Save As..." />
+              <MenuItem fx:id="newFileButton" mnemonicParsing="false" text="New File" />
+                  <MenuItem fx:id="openFileButton" mnemonicParsing="false" text="Open File" />
+                  <MenuItem fx:id="saveButton" mnemonicParsing="false" text="Save" />
+                  <MenuItem fx:id="saveAsButton" mnemonicParsing="false" text="Save As..." />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Operations">
             <items>
-              <MenuItem id="undoButton" mnemonicParsing="false" text="Undo" />
-                  <MenuItem id="redoButton" mnemonicParsing="false" text="Redo" />
+              <MenuItem fx:id="undoButton" mnemonicParsing="false" text="Undo" />
+                  <MenuItem fx:id="redoButton" mnemonicParsing="false" text="Redo" />
             </items>
           </Menu>
         </menus>
@@ -35,18 +40,18 @@
    <left>
       <VBox prefHeight="567.0" prefWidth="170.0" style="-fx-border-width: 1px; -fx-border-color: black;" BorderPane.alignment="CENTER">
          <children>
-            <ToggleButton id="polygonToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="212.0" text="Polygon" />
-            <ToggleButton id="pointToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="180.0" text="Point" />
-            <ToggleButton id="lineToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="195.0" text="Line" />
-            <ToggleButton id="circleToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="198.0" text="Circle" />
-            <ToggleButton id="rectangleToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="223.0" text="Rectangle" />
-            <ColorPicker id="colorPicker" prefHeight="26.0" prefWidth="213.0" />
-            <Slider id="transparencySlider" blockIncrement="0.1" majorTickUnit="0.25" max="1.0" minorTickCount="4" prefHeight="38.0" prefWidth="201.0" showTickLabels="true" showTickMarks="true" />
-            <Slider id="lineThicknessSlider" blockIncrement="1.0" majorTickUnit="1.0" max="10.0" min="1.0" prefHeight="38.0" prefWidth="216.0" showTickLabels="true" showTickMarks="true" />
+            <ToggleButton fx:id="polygonToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="212.0" text="Polygon" toggleGroup="$shapesToggleGroup" />
+            <ToggleButton fx:id="pointToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="180.0" text="Point" toggleGroup="$shapesToggleGroup" />
+            <ToggleButton fx:id="lineToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="195.0" text="Line" toggleGroup="$shapesToggleGroup" />
+            <ToggleButton fx:id="circleToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="198.0" text="Circle" toggleGroup="$shapesToggleGroup" />
+            <ToggleButton fx:id="rectangleToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="223.0" text="Rectangle" toggleGroup="$shapesToggleGroup" />
+            <ColorPicker fx:id="colorPicker" prefHeight="26.0" prefWidth="213.0" />
+            <Slider fx:id="transparencySlider" blockIncrement="0.1" majorTickUnit="0.25" max="1.0" minorTickCount="4" prefHeight="38.0" prefWidth="201.0" showTickLabels="true" showTickMarks="true" />
+            <Slider fx:id="lineThicknessSlider" blockIncrement="1.0" majorTickUnit="1.0" max="10.0" min="1.0" prefHeight="38.0" prefWidth="216.0" showTickLabels="true" showTickMarks="true" />
          </children>
       </VBox>
    </left>
    <center>
-      <Canvas id="canvas" height="567.0" width="793.0" BorderPane.alignment="CENTER" />
+      <Canvas fx:id="canvas" height="567.0" width="793.0" BorderPane.alignment="CENTER" onMousePressed="#getStartLocation" onMouseReleased="#drawShape" />
    </center>
 </BorderPane>
