@@ -40,10 +40,10 @@
    <left>
       <VBox prefHeight="567.0" prefWidth="170.0" style="-fx-border-width: 1px; -fx-border-color: black;" BorderPane.alignment="CENTER">
          <children>
-            <ToggleButton fx:id="polygonToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="212.0" text="Polygon" toggleGroup="$shapesToggleGroup" />
+            <ToggleButton fx:id="pentagonToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="212.0" text="Pentagon" toggleGroup="$shapesToggleGroup" />
             <ToggleButton fx:id="pointToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="180.0" text="Point" toggleGroup="$shapesToggleGroup" />
             <ToggleButton fx:id="lineToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="195.0" text="Line" toggleGroup="$shapesToggleGroup" />
-            <ToggleButton fx:id="circleToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="198.0" text="Circle" toggleGroup="$shapesToggleGroup" />
+            <ToggleButton fx:id="ellipseToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="198.0" text="Ellipse" toggleGroup="$shapesToggleGroup" />
             <ToggleButton fx:id="rectangleToggleButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="223.0" text="Rectangle" toggleGroup="$shapesToggleGroup" />
             <ColorPicker fx:id="colorPicker" prefHeight="26.0" prefWidth="213.0" />
             <Slider fx:id="transparencySlider" blockIncrement="0.1" majorTickUnit="0.25" max="1.0" minorTickCount="4" prefHeight="38.0" prefWidth="201.0" showTickLabels="true" showTickMarks="true" />
