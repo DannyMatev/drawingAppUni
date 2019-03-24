@@ -1,17 +1,25 @@
 package main.controller;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import main.model.Layer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Controller {
 
@@ -42,6 +50,19 @@ public class Controller {
     @FXML
     private Slider lineThicknessSlider;
 
+    @FXML
+    private BorderPane borderPane;
+
+    @FXML
+    private ListView<RadioButton> layersListView;
+
+    @FXML
+    private Pane drawingPane;
+
+    private ToggleGroup toggleGroup;
+
+    private Map<RadioButton, Canvas> layersMap;
+
     private Ellipse ellipse;
 
     private Rectangle rectangle;
@@ -54,11 +75,39 @@ public class Controller {
     private double[] pentagonX = new double[5];
     private double[] pentagonY = new double[5];
 
+    private double canvasHeight;
+    private double canvasWidth;
+
+
     public Controller() {
+        toggleGroup = new ToggleGroup();
+        layersMap = new HashMap<>();
         line = new Line();
         ellipse = new Ellipse();
         rectangle = new Rectangle();
         point = new Circle();
+    }
+
+    @FXML
+    public void initialize() {
+        Layer initialLayer = new Layer(canvas);
+        initialLayer.getRadioButton().setToggleGroup(toggleGroup);
+        layersMap.put(initialLayer.getRadioButton(), initialLayer.getCanvas());
+        layersListView.getItems().add(initialLayer.getRadioButton());
+        toggleGroup.selectToggle(initialLayer.getRadioButton());
+
+        toggleGroup.selectedToggleProperty().addListener((ov, old_toggle, new_toggle) -> {
+            if (toggleGroup.getSelectedToggle() != null) {
+                RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
+                Canvas selectedCanvas = layersMap.get(selectedRadioButton);
+
+
+                selectedCanvas.toFront();
+            }
+        });
+
+        canvasHeight = canvas.getHeight();
+        canvasWidth = canvas.getWidth();
     }
 
     @FXML
@@ -81,8 +130,32 @@ public class Controller {
     }
 
     @FXML
+    public void addLayer() {
+        Layer layer = new Layer(new Canvas(canvasWidth, canvasHeight));
+        drawingPane.getChildren().add(layer.getCanvas());
+        layer.getRadioButton().setToggleGroup(toggleGroup);
+        layersMap.put(layer.getRadioButton(), layer.getCanvas());
+        layersListView.getItems().add(layer.getRadioButton());
+    }
+
+    @FXML
+    public void removeLayer() {
+        if(toggleGroup.getToggles().size()>1) {
+            RadioButton radioButton = (RadioButton) toggleGroup.getSelectedToggle();
+            Canvas canvasToBeRemoved = layersMap.get(radioButton);
+            layersListView.getItems().remove(radioButton);
+            drawingPane.getChildren().remove(canvasToBeRemoved);
+            layersMap.remove(radioButton);
+            toggleGroup.getToggles().remove(radioButton);
+            toggleGroup.selectToggle(toggleGroup.getToggles().get(0));
+        }
+    }
+
+    @FXML
     private void drawShape(MouseEvent event) {
-        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        RadioButton radioButton = (RadioButton) toggleGroup.getSelectedToggle();
+        Canvas currentCanvas = layersMap.get(radioButton);
+        GraphicsContext graphicsContext = currentCanvas.getGraphicsContext2D();
 
         graphicsContext.setFill(colorPicker.getValue());
         graphicsContext.setGlobalAlpha(transparencySlider.getValue());
@@ -155,4 +228,6 @@ public class Controller {
         point.setCenterY(event.getY());
         graphicsContext.fillOval(point.getCenterX(), point.getCenterY(), diameter, diameter);
     }
+
+
 }
