@@ -1,25 +1,30 @@
 package main.controller;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.FileChooser;
+import main.Main;
 import main.model.Layer;
 
+import javax.imageio.ImageIO;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class Controller {
 
@@ -108,6 +113,9 @@ public class Controller {
 
         canvasHeight = canvas.getHeight();
         canvasWidth = canvas.getWidth();
+        lineThicknessSlider.setValue(5);
+        transparencySlider.setValue(1);
+        colorPicker.setValue(Color.BLACK);
     }
 
     @FXML
@@ -132,6 +140,7 @@ public class Controller {
     @FXML
     public void addLayer() {
         Layer layer = new Layer(new Canvas(canvasWidth, canvasHeight));
+
         drawingPane.getChildren().add(layer.getCanvas());
         layer.getRadioButton().setToggleGroup(toggleGroup);
         layersMap.put(layer.getRadioButton(), layer.getCanvas());
@@ -140,7 +149,7 @@ public class Controller {
 
     @FXML
     public void removeLayer() {
-        if(toggleGroup.getToggles().size()>1) {
+        if (toggleGroup.getToggles().size() > 1) {
             RadioButton radioButton = (RadioButton) toggleGroup.getSelectedToggle();
             Canvas canvasToBeRemoved = layersMap.get(radioButton);
             layersListView.getItems().remove(radioButton);
@@ -148,6 +157,28 @@ public class Controller {
             layersMap.remove(radioButton);
             toggleGroup.getToggles().remove(radioButton);
             toggleGroup.selectToggle(toggleGroup.getToggles().get(0));
+        }
+    }
+
+    @FXML
+    public void saveFile() {
+        FileChooser fileChooser = new FileChooser();
+
+        FileChooser.ExtensionFilter extFilter =
+                new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        File file = fileChooser.showSaveDialog(Main.mainStage);
+        Canvas saveImageCanvas = new Canvas();
+        if (file != null) {
+            try {
+                WritableImage writableImage = new WritableImage((int) canvasWidth, (int) canvasHeight);
+                canvas.snapshot(null, writableImage);
+                RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+                ImageIO.write(renderedImage, "png", file);
+            } catch (IOException ex) {
+                Logger.getAnonymousLogger().warning("IO exception");
+            }
         }
     }
 

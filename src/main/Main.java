@@ -16,7 +16,9 @@ public class Main extends Application {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
 
-    private Scene mainScene;
+    public static Scene mainScene;
+
+    public static Stage mainStage;
 
     public static void main(String[] args) {
         launch(args);
@@ -29,5 +31,7 @@ public class Main extends Application {
         primaryStage.setTitle("Drawing application");
         primaryStage.setScene(mainScene);
         primaryStage.show();
+
+        mainStage = primaryStage;
     }
 }
