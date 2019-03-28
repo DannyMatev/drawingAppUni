@@ -2,7 +2,7 @@ package main.model;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.RadioButton;
-import javafx.scene.shape.Shape;
+import main.model.figure.Figure;
 
 import java.util.ArrayList;
 import java.util.List;

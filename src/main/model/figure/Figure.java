@@ -1,4 +1,4 @@
-package main.model;
+package main.model.figure;
 
 import javafx.scene.paint.Color;
 

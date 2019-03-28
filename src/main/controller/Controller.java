@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import main.Main;
 import main.model.*;
+import main.model.figure.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;

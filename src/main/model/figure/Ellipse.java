@@ -1,4 +1,4 @@
-package main.model;
+package main.model.figure;
 
 public class Ellipse extends Figure {
 
