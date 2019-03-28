@@ -2,7 +2,10 @@ package main.model;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.RadioButton;
+import javafx.scene.shape.Shape;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Layer {
@@ -12,6 +15,8 @@ public class Layer {
     private Canvas canvas;
     private RadioButton radioButton;
 
+    private List<Figure> drawnShapes;
+
     public Layer() {
     }
 
@@ -19,6 +24,7 @@ public class Layer {
         layerCount++;
         this.canvas = canvas;
         this.radioButton = new RadioButton(String.format("Layer %d", layerCount));
+        drawnShapes = new ArrayList<>();
     }
 
     public static int getLayerCount() {
@@ -43,6 +49,14 @@ public class Layer {
 
     public void setRadioButton(RadioButton radioButton) {
         this.radioButton = radioButton;
+    }
+
+    public void addShape(Figure figure) {
+        drawnShapes.add(figure);
+    }
+
+    public List<Figure> getDrawnShapes() {
+        return drawnShapes;
     }
 
     @Override

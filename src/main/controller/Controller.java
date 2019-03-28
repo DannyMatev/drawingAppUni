@@ -10,20 +10,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import main.Main;
-import main.model.Layer;
+import main.model.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Controller {
@@ -66,7 +61,7 @@ public class Controller {
 
     private ToggleGroup toggleGroup;
 
-    private Map<RadioButton, Canvas> layersMap;
+    private Map<RadioButton, Layer> layersMap;
 
     private Ellipse ellipse;
 
@@ -83,13 +78,12 @@ public class Controller {
     private double canvasHeight;
     private double canvasWidth;
 
-
     public Controller() {
         toggleGroup = new ToggleGroup();
         layersMap = new HashMap<>();
-        line = new Line();
         ellipse = new Ellipse();
         rectangle = new Rectangle();
+        line = new Line();
         point = new Circle();
     }
 
@@ -97,14 +91,14 @@ public class Controller {
     public void initialize() {
         Layer initialLayer = new Layer(canvas);
         initialLayer.getRadioButton().setToggleGroup(toggleGroup);
-        layersMap.put(initialLayer.getRadioButton(), initialLayer.getCanvas());
+        layersMap.put(initialLayer.getRadioButton(), initialLayer);
         layersListView.getItems().add(initialLayer.getRadioButton());
         toggleGroup.selectToggle(initialLayer.getRadioButton());
 
         toggleGroup.selectedToggleProperty().addListener((ov, old_toggle, new_toggle) -> {
             if (toggleGroup.getSelectedToggle() != null) {
                 RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
-                Canvas selectedCanvas = layersMap.get(selectedRadioButton);
+                Canvas selectedCanvas = layersMap.get(selectedRadioButton).getCanvas();
 
 
                 selectedCanvas.toFront();
@@ -121,12 +115,15 @@ public class Controller {
     @FXML
     private void getStartLocation(MouseEvent event) {
         if (lineToggleButton.isSelected()) {
+            line = new Line();
             line.setStartX(event.getX());
             line.setStartY(event.getY());
         } else if (ellipseToggleButton.isSelected()) {
-            ellipse.setCenterX(event.getX());
-            ellipse.setCenterY(event.getY());
+            ellipse = new Ellipse();
+            ellipse.setX(event.getX());
+            ellipse.setY(event.getY());
         } else if (rectangleToggleButton.isSelected()) {
+            rectangle = new Rectangle();
             rectangle.setX(event.getX());
             rectangle.setY(event.getY());
         } else if (pentagonToggleButton.isSelected()) {
@@ -134,7 +131,6 @@ public class Controller {
             pentagonY[pentagonPoints] = event.getY();
             pentagonPoints++;
         }
-
     }
 
     @FXML
@@ -143,7 +139,7 @@ public class Controller {
 
         drawingPane.getChildren().add(layer.getCanvas());
         layer.getRadioButton().setToggleGroup(toggleGroup);
-        layersMap.put(layer.getRadioButton(), layer.getCanvas());
+        layersMap.put(layer.getRadioButton(), layer);
         layersListView.getItems().add(layer.getRadioButton());
     }
 
@@ -151,7 +147,7 @@ public class Controller {
     public void removeLayer() {
         if (toggleGroup.getToggles().size() > 1) {
             RadioButton radioButton = (RadioButton) toggleGroup.getSelectedToggle();
-            Canvas canvasToBeRemoved = layersMap.get(radioButton);
+            Canvas canvasToBeRemoved = layersMap.get(radioButton).getCanvas();
             layersListView.getItems().remove(radioButton);
             drawingPane.getChildren().remove(canvasToBeRemoved);
             layersMap.remove(radioButton);
@@ -162,18 +158,36 @@ public class Controller {
 
     @FXML
     public void saveFile() {
-        FileChooser fileChooser = new FileChooser();
+        Canvas saveImageCanvas = new Canvas();
+        GraphicsContext context = saveImageCanvas.getGraphicsContext2D();
 
-        FileChooser.ExtensionFilter extFilter =
-                new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+        for (RadioButton currentButton : layersListView.getItems()) {
+            Layer currentLayer = layersMap.get(currentButton);
+            for (Figure figure : currentLayer.getDrawnShapes()) {
+                if (figure instanceof Circle) {
+                    Circle circle = (Circle) figure;
+                    context.setFill(circle.getColor());
+                    context.setGlobalAlpha(circle.getTransparency());
+                    context.fillOval(circle.getX() - circle.getRadius(), circle.getY() - circle.getRadius(), circle.getDiameter(), circle.getDiameter());
+                } else if (figure instanceof Rectangle) {
+                    Rectangle rectangle = (Rectangle) figure;
+                    context.setFill(rectangle.getColor());
+                    context.setGlobalAlpha(rectangle.getTransparency());
+                    context.fillRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
+                }
+            }
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File file = fileChooser.showSaveDialog(Main.mainStage);
-        Canvas saveImageCanvas = new Canvas();
+
         if (file != null) {
             try {
                 WritableImage writableImage = new WritableImage((int) canvasWidth, (int) canvasHeight);
-                canvas.snapshot(null, writableImage);
+                saveImageCanvas.snapshot(null, writableImage);
                 RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
                 ImageIO.write(renderedImage, "png", file);
             } catch (IOException ex) {
@@ -185,7 +199,8 @@ public class Controller {
     @FXML
     private void drawShape(MouseEvent event) {
         RadioButton radioButton = (RadioButton) toggleGroup.getSelectedToggle();
-        Canvas currentCanvas = layersMap.get(radioButton);
+        Layer currentLayer = layersMap.get(radioButton);
+        Canvas currentCanvas = currentLayer.getCanvas();
         GraphicsContext graphicsContext = currentCanvas.getGraphicsContext2D();
 
         graphicsContext.setFill(colorPicker.getValue());
@@ -193,18 +208,33 @@ public class Controller {
         graphicsContext.setLineWidth(lineThicknessSlider.getValue());
 
         if (lineToggleButton.isSelected()) {
+            line.setColor(colorPicker.getValue());
+            line.setThickness(lineThicknessSlider.getValue());
+            line.setTransparency(transparencySlider.getValue());
             drawLine(graphicsContext, event);
+            currentLayer.addShape(line);
         } else if (ellipseToggleButton.isSelected()) {
+            ellipse.setColor(colorPicker.getValue());
+            ellipse.setThickness(lineThicknessSlider.getValue());
+            ellipse.setTransparency(transparencySlider.getValue());
             drawEllipse(graphicsContext, event);
+            currentLayer.addShape(ellipse);
         } else if (rectangleToggleButton.isSelected()) {
+            rectangle.setColor(colorPicker.getValue());
+            rectangle.setThickness(lineThicknessSlider.getValue());
+            rectangle.setTransparency(transparencySlider.getValue());
             drawRectangle(graphicsContext, event);
+            currentLayer.addShape(rectangle);
         } else if (pointToggleButton.isSelected()) {
+            point.setColor(colorPicker.getValue());
+            point.setThickness(lineThicknessSlider.getValue());
+            point.setTransparency(transparencySlider.getValue());
             drawPoint(graphicsContext, event);
+            currentLayer.addShape(point);
         } else if (pentagonToggleButton.isSelected() && pentagonPoints == 5) {
             graphicsContext.fillPolygon(pentagonX, pentagonY, pentagonPoints);
             pentagonPoints = 0;
         }
-
     }
 
     private void drawLine(GraphicsContext graphicsContext, MouseEvent event) {
@@ -235,30 +265,30 @@ public class Controller {
     }
 
     private void drawEllipse(GraphicsContext graphicsContext, MouseEvent event) {
-        double diameterX = Math.abs(ellipse.getCenterX() - event.getX());
-        double diameterY = Math.abs(ellipse.getCenterY() - event.getY());
+        double diameterX = Math.abs(ellipse.getX() - event.getX());
+        double diameterY = Math.abs(ellipse.getY() - event.getY());
 
-        if (ellipse.getCenterX() > event.getX()) {
-            if (ellipse.getCenterY() > event.getY()) {
+        if (ellipse.getX() > event.getX()) {
+            if (ellipse.getY() > event.getY()) {
                 graphicsContext.fillOval(event.getX(), event.getY(), diameterX, diameterY);
             } else {
                 graphicsContext.fillOval(event.getX(), event.getY() - diameterY, diameterX, diameterY);
             }
         } else {
-            if (ellipse.getCenterY() > event.getY()) {
+            if (ellipse.getY() > event.getY()) {
                 graphicsContext.fillOval(event.getX() - diameterY, event.getY(), diameterX, diameterY);
             } else {
-                graphicsContext.fillOval(ellipse.getCenterX(), ellipse.getCenterY(), diameterX, diameterY);
+                graphicsContext.fillOval(ellipse.getX(), ellipse.getY(), diameterX, diameterY);
             }
         }
     }
 
     private void drawPoint(GraphicsContext graphicsContext, MouseEvent event) {
         double diameter = lineThicknessSlider.getValue();
-        point.setCenterX(event.getX());
-        point.setCenterY(event.getY());
-        graphicsContext.fillOval(point.getCenterX(), point.getCenterY(), diameter, diameter);
+        point = new Circle();
+        point.setX(event.getX());
+        point.setY(event.getY());
+        point.setRadius(diameter / 2);
+        graphicsContext.fillOval(point.getX() - diameter / 2, point.getY() - diameter / 2, diameter, diameter);
     }
-
-
 }

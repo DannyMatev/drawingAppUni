@@ -28,12 +28,6 @@
                   <MenuItem fx:id="saveAsButton" mnemonicParsing="false" text="Save As..." />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Operations">
-            <items>
-              <MenuItem fx:id="undoButton" mnemonicParsing="false" text="Undo" />
-                  <MenuItem fx:id="redoButton" mnemonicParsing="false" text="Redo" />
-            </items>
-          </Menu>
         </menus>
       </MenuBar>
    </top>
