@@ -23,8 +23,8 @@
           <Menu mnemonicParsing="false" text="File">
             <items>
               <MenuItem fx:id="newFileButton" mnemonicParsing="false" text="New File" />
-                  <MenuItem fx:id="openFileButton" mnemonicParsing="false" text="Open File" />
-                  <MenuItem fx:id="saveButton" mnemonicParsing="false" onAction="#saveFile" text="Save" />
+                  <MenuItem fx:id="openFileButton" mnemonicParsing="false" text="Open file" onAction="#loadImage" />
+                  <MenuItem fx:id="saveButton" mnemonicParsing="false" text="Save file" onAction="#saveImage" />
                   <MenuItem fx:id="saveAsButton" mnemonicParsing="false" text="Save As..." />
             </items>
           </Menu>
